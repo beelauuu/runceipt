@@ -21,9 +21,9 @@ export default function ActivityRow({ activity, index, options }: Props) {
 
   return (
     <div className="flex text-xs font-mono py-0.5">
-      <span className={`flex-1 mx-1 ${truncateTitle ? "truncate" : "break-words"}`}>{activity.name}</span>
+      <span className={`flex-1 mx-1.5 ${truncateTitle ? "truncate" : "wrap-break-word"}`}>{activity.name}</span>
       <span className="shrink-0 w-14 text-right">
-        {distance} {unit}
+        {distance}&nbsp;{unit}
       </span>
       {showPace && (
         <span className="shrink-0 w-16 text-right">

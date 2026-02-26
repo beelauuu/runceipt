@@ -20,32 +20,82 @@ export interface StravaAthlete {
   lastname: string;
 }
 
+export interface StravaTokens {
+  access_token: string;
+  refresh_token: string;
+  expires_at: number; // Unix timestamp (seconds)
+}
+
+export class StravaApiError extends Error {
+  constructor(public readonly status: number, message: string) {
+    super(message);
+    this.name = "StravaApiError";
+  }
+}
+
 const STRAVA_API_BASE = "https://www.strava.com/api/v3";
 
 export async function fetchActivities(token: string, after?: number): Promise<StravaActivity[]> {
-  const params = new URLSearchParams({ per_page: "200" });
-  if (after !== undefined) params.set("after", String(after));
-  const url = `${STRAVA_API_BASE}/athlete/activities?${params}`;
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const all: StravaActivity[] = [];
+  let pageNum = 1;
 
-  if (!res.ok) {
-    throw new Error(`Strava API error: ${res.status} ${res.statusText}`);
+  while (true) {
+    const params = new URLSearchParams({ per_page: "200", page: String(pageNum) });
+    if (after !== undefined) params.set("after", String(after));
+    const url = `${STRAVA_API_BASE}/athlete/activities?${params}`;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(10_000),
+    });
+
+    if (!res.ok) {
+      throw new StravaApiError(res.status, `Strava API error: ${res.status} ${res.statusText}`);
+    }
+
+    const batch = (await res.json()) as StravaActivity[];
+    all.push(...batch);
+    if (batch.length < 200) break;
+    pageNum++;
   }
 
-  return res.json() as Promise<StravaActivity[]>;
+  return all;
 }
 
 export async function fetchAthlete(token: string): Promise<StravaAthlete> {
   const url = `${STRAVA_API_BASE}/athlete`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
+    signal: AbortSignal.timeout(10_000),
   });
 
   if (!res.ok) {
-    throw new Error(`Strava API error: ${res.status} ${res.statusText}`);
+    throw new StravaApiError(res.status, `Strava API error: ${res.status} ${res.statusText}`);
   }
 
   return res.json() as Promise<StravaAthlete>;
+}
+
+export async function refreshAccessToken(refreshToken: string): Promise<StravaTokens> {
+  const res = await fetch("https://www.strava.com/oauth/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      client_id: process.env.STRAVA_CLIENT_ID,
+      client_secret: process.env.STRAVA_CLIENT_SECRET,
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    }),
+    signal: AbortSignal.timeout(10_000),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Token refresh failed: ${res.status}`);
+  }
+
+  const data = await res.json();
+  return {
+    access_token: data.access_token,
+    refresh_token: data.refresh_token,
+    expires_at: data.expires_at,
+  };
 }

@@ -13,6 +13,7 @@ export interface ReceiptOptions {
   unitSystem: UnitSystem;
   enabledSportTypes: Set<string>; // populated after activities load
   athleteName: string | null;
+  athleteId: number | null;
 }
 
 export const DEFAULT_OPTIONS: ReceiptOptions = {
@@ -26,4 +27,5 @@ export const DEFAULT_OPTIONS: ReceiptOptions = {
   unitSystem: "imperial",
   enabledSportTypes: new Set(),
   athleteName: null,
+  athleteId: null,
 };

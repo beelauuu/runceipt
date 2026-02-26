@@ -8,5 +8,5 @@ export async function GET(req: NextRequest) {
   }
 
   const athlete = await fetchAthlete(token);
-  return NextResponse.json({ firstname: athlete.firstname });
+  return NextResponse.json({ firstname: athlete.firstname, id: athlete.id });
 }

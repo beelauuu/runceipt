@@ -33,6 +33,8 @@ export default function ControlsPanel({ activities, options, onChange }: Props) 
 
   return (
     <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-4 font-mono space-y-4">
+      <div className="text-sm font-bold tracking-widest uppercase">Settings</div>
+
       {/* Date Range */}
       <div>
         <div className="text-xs text-gray-500 uppercase tracking-wide mb-1.5">
