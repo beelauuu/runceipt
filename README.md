@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Runceipt
+
+A "Receiptify for Strava" web app. Connect your Strava account and get a thermal receipt-style summary of your last 30 days of running — shareable as a PNG.
+
+![Runceipt preview](public/next.svg)
+
+## Features
+
+- Strava OAuth login
+- Lists every run as a line item (date, name, distance)
+- Totals: distance, time, elevation
+- Highlights: longest run, fastest pace
+- Download as PNG via html2canvas-pro
+- CODE128 barcode encoding your total mileage
+
+## Tech Stack
+
+- [Next.js 16](https://nextjs.org) (App Router)
+- [Tailwind CSS v4](https://tailwindcss.com)
+- [html2canvas-pro](https://github.com/niklasvh/html2canvas) — PNG export with CSS Color Level 4 support
+- [JsBarcode](https://github.com/lindell/JsBarcode) — barcode generation
+- TypeScript
 
 ## Getting Started
 
-First, run the development server:
+### 1. Create a Strava API app
+
+Go to [strava.com/settings/api](https://www.strava.com/settings/api) and create an app. Set the **Authorization Callback Domain** to `localhost`.
+
+### 2. Configure environment variables
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Fill in `.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+STRAVA_CLIENT_ID=         # from strava.com/settings/api
+STRAVA_CLIENT_SECRET=     # from strava.com/settings/api
+NEXT_PUBLIC_STRAVA_CLIENT_ID=    # same as STRAVA_CLIENT_ID
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Install and run
 
-## Learn More
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open [http://localhost:3000](http://localhost:3000), connect with Strava, and your receipt will be generated automatically.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Strava API responses are cached in `.cache/activities.json` for 1 hour during development. Delete the file to force a fresh fetch.
+- Rate limits: 100 requests / 15 min, 1000 / day — the cache prevents hitting these during normal dev use.

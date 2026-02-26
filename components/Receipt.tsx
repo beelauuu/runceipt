@@ -99,7 +99,7 @@ export default function Receipt({ activities }: Props) {
       {/* Footer */}
       <div className="text-center text-xs space-y-1 mb-4">
         <div>Thank you for running!</div>
-        <div className="text-gray-400">stravaceipt.vercel.app</div>
+        <div className="text-gray-400">runceipt.vercel.app</div>
       </div>
 
       {/* Barcode */}

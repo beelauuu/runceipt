@@ -24,7 +24,7 @@ export default function ReceiptPage() {
     const { default: html2canvas } = await import("html2canvas-pro");
     const canvas = await html2canvas(receiptRef.current, { scale: 3 });
     const link = document.createElement("a");
-    link.download = "stravaceipt.png";
+    link.download = "runceipt.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
   }

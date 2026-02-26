@@ -8,7 +8,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Stravaceipt",
+  title: "Runceipt",
   description: "A receipt-style summary of your Strava runs",
 };
 
