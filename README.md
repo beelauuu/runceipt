@@ -51,5 +51,4 @@ Open [http://localhost:3000](http://localhost:3000), connect with Strava, and yo
 
 ## Notes
 
-- Strava API responses are cached in `.cache/activities.json` for 1 hour during development. Delete the file to force a fresh fetch.
-- Rate limits: 100 requests / 15 min, 1000 / day — the cache prevents hitting these during normal dev use.
+- Rate limits: 100 requests / 15 min, 1000 / day. Avoid reloading the receipt page repeatedly during development.

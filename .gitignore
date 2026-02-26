@@ -10,9 +10,6 @@ out/
 .env.local
 .env.*.local
 
-# Dev API response cache
-.cache/
-
 # OS / editor
 .DS_Store
 *.pem
