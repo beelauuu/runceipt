@@ -1,3 +1,5 @@
+import { UnitSystem } from "./receiptOptions";
+
 /** Convert meters to miles, formatted to 2 decimal places */
 export function metersToMiles(meters: number): string {
   return (meters / 1609.344).toFixed(2);
@@ -27,4 +29,40 @@ export function mpsToMinPerMile(mps: number): string {
 export function formatShortDate(isoDate: string): string {
   const d = new Date(isoDate);
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+/** Convert meters to distance string (miles or km), 2 decimal places */
+export function metersToDistance(meters: number, unit: UnitSystem): string {
+  if (unit === "imperial") {
+    return (meters / 1609.344).toFixed(2);
+  }
+  return (meters / 1000).toFixed(2);
+}
+
+/** Convert m/s to min/mile or min/km pace string (e.g. "8:32") */
+export function mpsToMinPerUnit(mps: number, unit: UnitSystem): string {
+  if (mps === 0) return "--";
+  const metersPerUnit = unit === "imperial" ? 1609.344 : 1000;
+  const secondsPerUnit = metersPerUnit / mps;
+  const mins = Math.floor(secondsPerUnit / 60);
+  const secs = Math.round(secondsPerUnit % 60);
+  return `${mins}:${String(secs).padStart(2, "0")}`;
+}
+
+/** Convert meters of elevation to formatted string (ft or m) */
+export function metersToElevation(meters: number, unit: UnitSystem): string {
+  if (unit === "imperial") {
+    return `${Math.round(meters * 3.28084).toLocaleString()} ft`;
+  }
+  return `${Math.round(meters).toLocaleString()} m`;
+}
+
+/** Distance unit label */
+export function distanceLabel(unit: UnitSystem): string {
+  return unit === "imperial" ? "mi" : "km";
+}
+
+/** Pace unit label */
+export function paceLabel(unit: UnitSystem): string {
+  return unit === "imperial" ? "/mi" : "/km";
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchActivities } from "@/lib/strava";
+import { fetchAthlete } from "@/lib/strava";
 
 export async function GET(req: NextRequest) {
   const token = req.cookies.get("strava_token")?.value;
@@ -7,7 +7,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const after = Math.floor(Date.now() / 1000) - 90 * 24 * 60 * 60;
-  const activities = await fetchActivities(token, after);
-  return NextResponse.json(activities);
+  const athlete = await fetchAthlete(token);
+  return NextResponse.json({ firstname: athlete.firstname });
 }
