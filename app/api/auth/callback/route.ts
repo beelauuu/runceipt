@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const COOKIE_OPTS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+  maxAge: 60 * 60 * 24 * 7, // 7 days
+};
+
 export async function GET(req: NextRequest) {
+  // User denied authorization on the Strava screen
+  if (req.nextUrl.searchParams.get("error")) {
+    return NextResponse.redirect(new URL("/?error=denied", req.nextUrl.origin));
+  }
+
   const code = req.nextUrl.searchParams.get("code");
   if (!code) {
     return NextResponse.json({ error: "Missing code" }, { status: 400 });
@@ -26,17 +39,13 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const { access_token } = await tokenRes.json();
+  const { access_token, refresh_token, expires_at } = await tokenRes.json();
 
-  // Store the access token in an httpOnly cookie so client JS can't read it
+  // Store tokens in httpOnly cookies so client JS can't read them
   const res = NextResponse.redirect(new URL("/receipt", req.nextUrl.origin));
-  res.cookies.set("strava_token", access_token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 6, // 6 hours
-  });
+  res.cookies.set("strava_token", access_token, COOKIE_OPTS);
+  res.cookies.set("strava_refresh_token", refresh_token, COOKIE_OPTS);
+  res.cookies.set("strava_expires_at", String(expires_at), COOKIE_OPTS);
 
   return res;
 }
