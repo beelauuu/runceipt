@@ -2,8 +2,6 @@
 
 A "Receiptify for Strava" web app. Connect your Strava account and get a thermal receipt-style summary of your last 30 days of running — shareable as a PNG.
 
-![Runceipt preview](public/next.svg)
-
 ## Features
 
 - Strava OAuth login
