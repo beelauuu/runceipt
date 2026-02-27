@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { StravaActivity, getActivityCategory } from "@/lib/strava";
 import {
   metersToDistance,
@@ -32,6 +33,9 @@ export default function Receipt({ activities, options }: Props) {
     enabledSportTypes,
     athleteId,
   } = options;
+
+  const [clickCount, setClickCount] = useState(0);
+  const isWrinkled = clickCount >= 5;
 
   // Determine activity mode from enabled sport types
   const enabledCats = new Set(
@@ -152,8 +156,17 @@ export default function Receipt({ activities, options }: Props) {
   return (
     <div
       id="receipt"
-      className="bg-white text-black font-mono w-80 mx-auto p-6 shadow-lg"
-      style={{ fontFamily: "'Courier New', Courier, monospace" }}
+      className="text-black font-mono w-80 mx-auto p-6 shadow-lg"
+      style={{
+        fontFamily: "'Courier New', Courier, monospace",
+        backgroundImage: isWrinkled ? "url('/wrinkled-paper-texture-7.jpg')" : undefined,
+        backgroundColor: isWrinkled ? undefined : "white",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        cursor: "default",
+        userSelect: "none",
+      }}
+      onClick={() => setClickCount((n) => n + 1)}
     >
       {/* Header */}
       <div className="text-center mb-4">
