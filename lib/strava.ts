@@ -1,3 +1,21 @@
+export const RUN_SPORT_TYPES = ["Run", "VirtualRun", "TrailRun"] as const;
+export const RIDE_SPORT_TYPES = ["Ride", "VirtualRide", "GravelRide", "EBikeRide", "MountainBikeRide"] as const;
+export const SWIM_SPORT_TYPES = ["Swim", "OpenWaterSwim"] as const;
+export const SUPPORTED_SPORT_TYPES = new Set<string>([
+  ...RUN_SPORT_TYPES,
+  ...RIDE_SPORT_TYPES,
+  ...SWIM_SPORT_TYPES,
+]);
+
+export type ActivityCategory = "run" | "ride" | "swim" | "other";
+
+export function getActivityCategory(sportType: string): ActivityCategory {
+  if ((RUN_SPORT_TYPES as readonly string[]).includes(sportType)) return "run";
+  if ((RIDE_SPORT_TYPES as readonly string[]).includes(sportType)) return "ride";
+  if ((SWIM_SPORT_TYPES as readonly string[]).includes(sportType)) return "swim";
+  return "other";
+}
+
 export interface StravaActivity {
   id: number;
   name: string;
