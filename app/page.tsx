@@ -171,18 +171,12 @@ function MiniReceipt({ data }: { data: (typeof FAKE_RECEIPTS)[0] }) {
   );
 }
 
-export default function Home() {
-  const clientId = process.env.NEXT_PUBLIC_STRAVA_CLIENT_ID;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
-  const redirectUri = `${baseUrl}/api/auth/callback`;
-
-  const stravaAuthUrl =
-    `https://www.strava.com/oauth/authorize` +
-    `?client_id=${clientId}` +
-    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-    `&response_type=code` +
-    `&approval_prompt=auto` +
-    `&scope=read,activity:read`;
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
 
   return (
     <main
@@ -219,11 +213,17 @@ export default function Home() {
           RUNCEIPT
         </h1>
         <p className="mt-2 text-gray-600" style={{ fontFamily: "'Courier New', Courier, monospace" }}>
-          Your monthly runs, receipt-style.
+          Your runs, receipt-style.
         </p>
 
+        {error === "denied" && (
+          <p className="mt-4 text-sm text-gray-500" style={{ fontFamily: "'Courier New', Courier, monospace" }}>
+            You cancelled the Strava connection. Try again when you&apos;re ready.
+          </p>
+        )}
+
         <a
-          href={stravaAuthUrl}
+          href="/api/auth/start"
           className="mt-8 inline-flex items-center gap-3 rounded-full bg-orange-500 px-8 py-4 text-white font-semibold text-lg shadow-md hover:bg-orange-600 transition-colors"
         >
           {/* Strava bolt */}
