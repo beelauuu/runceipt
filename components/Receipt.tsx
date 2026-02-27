@@ -236,7 +236,7 @@ export default function Receipt({ activities, options }: Props) {
             ? "THANK YOU FOR BEING ACTIVE!"
             : "THANK YOU FOR RUNNING!"}
         </div>
-        <div className="text-gray-400">runceipt.vercel.app</div>
+        <div className="text-gray-400">runceipt.beelau.dev</div>
       </div>
 
       {/* Barcode */}

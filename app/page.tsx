@@ -213,7 +213,7 @@ export default async function Home({
           RUNCEIPT
         </h1>
         <p className="mt-2 text-gray-600" style={{ fontFamily: "'Courier New', Courier, monospace" }}>
-          Your runs, receipt-style.
+          Your activities, receipt-style.
         </p>
 
         {error === "denied" && (
