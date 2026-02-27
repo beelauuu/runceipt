@@ -14,6 +14,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/?error=denied", req.nextUrl.origin));
   }
 
+  // Verify CSRF state token
+  const stateParam = req.nextUrl.searchParams.get("state");
+  const stateCookie = req.cookies.get("strava_oauth_state")?.value;
+  if (!stateParam || !stateCookie || stateParam !== stateCookie) {
+    return NextResponse.redirect(new URL("/?error=denied", req.nextUrl.origin));
+  }
+
   const code = req.nextUrl.searchParams.get("code");
   if (!code) {
     return NextResponse.json({ error: "Missing code" }, { status: 400 });
@@ -46,6 +53,7 @@ export async function GET(req: NextRequest) {
   res.cookies.set("strava_token", access_token, COOKIE_OPTS);
   res.cookies.set("strava_refresh_token", refresh_token, COOKIE_OPTS);
   res.cookies.set("strava_expires_at", String(expires_at), COOKIE_OPTS);
+  res.cookies.delete("strava_oauth_state");
 
   return res;
 }
