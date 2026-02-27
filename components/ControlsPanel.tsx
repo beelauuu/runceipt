@@ -1,7 +1,7 @@
 "use client";
 
 import { ReceiptOptions, SortOrder, UnitSystem, DateRange } from "@/lib/receiptOptions";
-import { StravaActivity } from "@/lib/strava";
+import { StravaActivity, SUPPORTED_SPORT_TYPES } from "@/lib/strava";
 
 interface Props {
   activities: StravaActivity[];
@@ -10,7 +10,9 @@ interface Props {
 }
 
 export default function ControlsPanel({ activities, options, onChange }: Props) {
-  const allTypes = [...new Set(activities.map((a) => a.sport_type))].sort();
+  const allTypes = [...new Set(activities.map((a) => a.sport_type))]
+    .filter((t) => SUPPORTED_SPORT_TYPES.has(t))
+    .sort();
 
   function update(partial: Partial<ReceiptOptions>) {
     onChange({ ...options, ...partial });

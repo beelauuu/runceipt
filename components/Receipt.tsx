@@ -1,13 +1,15 @@
 "use client";
 
-import { StravaActivity } from "@/lib/strava";
+import { StravaActivity, getActivityCategory } from "@/lib/strava";
 import {
   metersToDistance,
   secondsToHMS,
   mpsToMinPerUnit,
+  mpsToSpeedPerUnit,
   metersToElevation,
   distanceLabel,
   paceLabel,
+  speedLabel,
 } from "@/lib/format";
 import { ReceiptOptions } from "@/lib/receiptOptions";
 import ActivityRow from "./ActivityRow";
@@ -31,19 +33,33 @@ export default function Receipt({ activities, options }: Props) {
     athleteId,
   } = options;
 
+  // Determine activity mode from enabled sport types
+  const enabledCats = new Set(
+    [...enabledSportTypes].map(getActivityCategory).filter((c) => c !== "other")
+  );
+  const hasRuns = enabledCats.has("run");
+  const hasRides = enabledCats.has("ride");
+  const hasSwims = enabledCats.has("swim");
+  const isMixed = enabledCats.size > 1;
+  const isSingleRide = !isMixed && hasRides;
+  const isSingleSwim = !isMixed && hasSwims;
+  const isSingleRun = !isMixed && hasRuns;
+
+  const activityKind = isSingleRun ? "Run" : isSingleRide ? "Ride" : isSingleSwim ? "Swim" : "Activity";
+
   // 1. Date filter
   const now = new Date();
   let rangeStart: Date;
   let rangeLabel: string;
   if (dateRange === "week") {
     rangeStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    rangeLabel = "Weekly Run";
+    rangeLabel = `Weekly ${activityKind}`;
   } else if (dateRange === "month") {
     rangeStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    rangeLabel = "Monthly Run";
+    rangeLabel = `Monthly ${activityKind}`;
   } else {
     rangeStart = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-    rangeLabel = "3-Month Run";
+    rangeLabel = `3-Month ${activityKind}`;
   }
 
   // Stage 1 — stable aggregates (date + type filter only)
@@ -152,7 +168,7 @@ export default function Receipt({ activities, options }: Props) {
       <div className="flex text-xs font-mono font-bold mb-1">
         <span className="flex-1 mx-1">ACTIVITY</span>
         <span className="shrink-0 w-14 text-right">DIST</span>
-        {showPace && <span className="shrink-0 w-16 text-right">PACE</span>}
+        {showPace && <span className="shrink-0 w-16 text-right">{isSingleRide ? "SPEED" : "PACE"}</span>}
         {showHeartRate && <span className="shrink-0 w-12 text-right">HR</span>}
       </div>
 
@@ -173,7 +189,7 @@ export default function Receipt({ activities, options }: Props) {
         )}
         {displayed.length < baseSet.length && (
           <div className="text-xs text-center text-gray-400 mt-1">
-            + {baseSet.length - displayed.length} more runs
+            + {baseSet.length - displayed.length} more {activityKind.toLowerCase()}s
           </div>
         )}
       </div>
@@ -182,7 +198,7 @@ export default function Receipt({ activities, options }: Props) {
 
       {/* Totals + Highlights */}
       <div className="text-xs space-y-1 mb-3">
-        <Row label="TOTAL RUNS" value={String(baseSet.length)} />
+        <Row label={`TOTAL ${activityKind.toUpperCase()}S`} value={String(baseSet.length)} />
         <Row label="TOTAL DISTANCE" value={`${totalDist} ${unit}`} />
         <Row label="TOTAL TIME" value={secondsToHMS(totalTimeS)} />
         <Row label="TOTAL ELEVATION" value={elevStr} />
@@ -191,14 +207,18 @@ export default function Receipt({ activities, options }: Props) {
         )}
         {longestRun && (
           <Row
-            label="LONGEST RUN"
+            label={`LONGEST ${activityKind.toUpperCase()}`}
             value={`${metersToDistance(longestRun.distance, unitSystem)} ${unit}`}
           />
         )}
-        {fastestRun && (
+        {showPace && fastestRun && (isSingleRun || isSingleRide) && (
           <Row
-            label="FASTEST PACE"
-            value={`${mpsToMinPerUnit(fastestRun.average_speed, unitSystem)}${paceLabel(unitSystem)}`}
+            label={isSingleRide ? "TOP SPEED" : "FASTEST PACE"}
+            value={
+              isSingleRide
+                ? `${mpsToSpeedPerUnit(fastestRun.average_speed, unitSystem)} ${speedLabel(unitSystem)}`
+                : `${mpsToMinPerUnit(fastestRun.average_speed, unitSystem)}${paceLabel(unitSystem)}`
+            }
           />
         )}
       </div>
@@ -207,7 +227,15 @@ export default function Receipt({ activities, options }: Props) {
 
       {/* Footer */}
       <div className="text-center text-xs space-y-1 mb-4">
-        <div>THANK YOU FOR RUNNING!</div>
+        <div>
+          {isSingleRide
+            ? "THANK YOU FOR RIDING!"
+            : isSingleSwim
+            ? "THANK YOU FOR SWIMMING!"
+            : isMixed
+            ? "THANK YOU FOR BEING ACTIVE!"
+            : "THANK YOU FOR RUNNING!"}
+        </div>
         <div className="text-gray-400">runceipt.vercel.app</div>
       </div>
 

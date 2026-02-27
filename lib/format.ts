@@ -66,3 +66,17 @@ export function distanceLabel(unit: UnitSystem): string {
 export function paceLabel(unit: UnitSystem): string {
   return unit === "imperial" ? "/mi" : "/km";
 }
+
+/** Convert m/s to mph or kph speed string (for cycling) */
+export function mpsToSpeedPerUnit(mps: number, unit: UnitSystem): string {
+  if (mps === 0) return "--";
+  if (unit === "imperial") {
+    return (mps * 2.23694).toFixed(1);
+  }
+  return (mps * 3.6).toFixed(1);
+}
+
+/** Speed unit label for cycling */
+export function speedLabel(unit: UnitSystem): string {
+  return unit === "imperial" ? "mph" : "kph";
+}

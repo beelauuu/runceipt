@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Receipt from "@/components/Receipt";
 import ControlsPanel from "@/components/ControlsPanel";
 import type { StravaActivity } from "@/lib/strava";
+import { RUN_SPORT_TYPES } from "@/lib/strava";
 import { ReceiptOptions, DEFAULT_OPTIONS } from "@/lib/receiptOptions";
 
 export default function ReceiptPage() {
@@ -21,9 +22,12 @@ export default function ReceiptPage() {
       })
       .then((data: StravaActivity[]) => {
         setActivities(data);
+        const runTypes = new Set(
+          data.map((a) => a.sport_type).filter((t) => (RUN_SPORT_TYPES as readonly string[]).includes(t))
+        );
         setOptions((prev) => ({
           ...prev,
-          enabledSportTypes: new Set(data.map((a) => a.sport_type)),
+          enabledSportTypes: runTypes,
         }));
       })
       .catch((err: Error) => {
